@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:		Haskell
 " Maintainer:		Haskell Cafe mailinglist <haskell-cafe@haskell.org>
-" Last Change:		2012 Aug 15 (joe)
+" Last Change:		2015 Jan 27 (Joe Crayne)
 "
 " Original Author:	John Williams <jrw@pobox.com>
 "
@@ -24,8 +24,8 @@
 "			   preprocessor directives but assume them to be
 "			   operators
 "
-" 2012 Aug 15: Added todo highlight (joe)
-"
+" 2015 Jan 27: Added quasiquote hilight (Joe Crayne)
+" 2012 Aug 15: Added todo highlight (Joe Crayne)
 " 2004 Feb 19: Added C preprocessor directive handling, corrected eol comments
 "	       cleaned away literate haskell support (should be entirely in
 "	       lhaskell.vim)
@@ -43,7 +43,7 @@ elseif exists("b:current_syntax")
   "finish
 endif
 
-syn keyword   cTodo           contained todo TODO FIXME XXX
+syn keyword   cTodo           contained todo TODO FIXME XXX _todo
 " cCommentGroup allows adding matches for special things in comments
 syn cluster     cCommentGroup   contains=cTodo
 
@@ -72,6 +72,7 @@ syn match   hsCharacter		"[^a-zA-Z0-9_']'\([^\\]\|\\[^']\+\|\\'\)'"lc=1 contains
 syn match   hsCharacter		"^'\([^\\]\|\\[^']\+\|\\'\)'" contains=hsSpecialChar,hsSpecialCharError
 syn match   hsNumber		"\<[0-9]\+\>\|\<0[xX][0-9a-fA-F]\+\>\|\<0[oO][0-7]\+\>"
 syn match   hsFloat		"\<[0-9]\+\.[0-9]\+\([eE][-+]\=[0-9]\+\)\=\>"
+syn region  hsQuasiquote matchgroup=hsOperator	start=+\[[a-zA-Z0-9_]\+|+ end=+|\]+ keepend
 
 " Keyword definitions. These must be patters instead of keywords
 " because otherwise they would match as keywords at the start of a
@@ -84,7 +85,7 @@ syn match hsStructure		"\<\(class\|data\|deriving\|instance\|default\|where\)\>"
 syn match hsTypedef		"\<\(type\|newtype\)\>"
 syn match hsStatement		"\<\(do\|case\|of\|let\|in\)\>"
 syn match hsConditional		"\<\(if\|then\|else\)\>"
-syn match hsTodo                "\<\(todo\)\>" contains=@cCommentGroup
+syn match hsTodo                "\<\(todo\|_todo\)\>" contains=@cCommentGroup
 
 " Not real keywords, but close.
 if exists("hs_highlight_boolean")
@@ -167,6 +168,7 @@ if version >= 508 || !exists("did_hs_syntax_inits")
   endif
   HiLink hsSpecialCharError		  Error
   HiLink hsString			  String
+  HiLink hsQuasiquote			  String
   HiLink hsCharacter			  Character
   HiLink hsNumber			  Number
   HiLink hsFloat			  Float
