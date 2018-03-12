@@ -1,7 +1,8 @@
 " Vim syntax file
 " Language:		Haskell
 " Maintainer:		Haskell Cafe mailinglist <haskell-cafe@haskell.org>
-" Last Change:		2008 Dec 15
+" Last Change:		2012 Aug 15 (joe)
+"
 " Original Author:	John Williams <jrw@pobox.com>
 "
 " Thanks to Ryan Crumley for suggestions and John Meacham for
@@ -23,6 +24,8 @@
 "			   preprocessor directives but assume them to be
 "			   operators
 "
+" 2012 Aug 15: Added todo highlight (joe)
+"
 " 2004 Feb 19: Added C preprocessor directive handling, corrected eol comments
 "	       cleaned away literate haskell support (should be entirely in
 "	       lhaskell.vim)
@@ -36,8 +39,14 @@
 if version < 600
   syn clear
 elseif exists("b:current_syntax")
-  finish
+  "overriding default haskell.vim
+  "finish
 endif
+
+syn keyword   cTodo           contained todo TODO FIXME XXX
+" cCommentGroup allows adding matches for special things in comments
+syn cluster     cCommentGroup   contains=cTodo
+
 
 " (Qualified) identifiers (no default highlighting)
 syn match ConId "\(\<[A-Z][a-zA-Z0-9_']*\.\)\=\<[A-Z][a-zA-Z0-9_']*\>"
@@ -75,6 +84,7 @@ syn match hsStructure		"\<\(class\|data\|deriving\|instance\|default\|where\)\>"
 syn match hsTypedef		"\<\(type\|newtype\)\>"
 syn match hsStatement		"\<\(do\|case\|of\|let\|in\)\>"
 syn match hsConditional		"\<\(if\|then\|else\)\>"
+syn match hsTodo                "\<\(todo\)\>" contains=@cCommentGroup
 
 " Not real keywords, but close.
 if exists("hs_highlight_boolean")
@@ -99,8 +109,10 @@ endif
 
 
 " Comments
-syn match   hsLineComment      "---*\([^-!#$%&\*\+./<=>\?@\\^|~].*\)\?$"
-syn region  hsBlockComment     start="{-"  end="-}" contains=hsBlockComment
+"syn match   hsLineComment      
+"---*\([^-!#$%&\*\+./<=>\?@\\^|~].*\)\?$
+syn region  hsLineComment     start="--"   end="$"  keepend contains=@cCommentGroup
+syn region  hsBlockComment     start="{-"  end="-}" contains=hsBlockComment,@cCommentGroup keepend
 syn region  hsPragma	       start="{-#" end="#-}"
 
 " C Preprocessor directives. Shamelessly ripped from c.vim and trimmed
@@ -185,6 +197,8 @@ if version >= 508 || !exists("did_hs_syntax_inits")
   HiLink cCppSkip		cCppOut
   HiLink cCppOut2		cCppOut
   HiLink cCppOut		Comment
+
+  HiLink cTodo                  Todo
 
   delcommand HiLink
 endif
