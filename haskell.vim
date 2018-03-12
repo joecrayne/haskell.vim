@@ -38,22 +38,22 @@ if exists("b:current_syntax")
 endif
 
 " (Qualified) identifiers (no default highlighting)
-syn match ConId "\(\<[A-Z][a-zA-Z0-9_']*\.\)\=\<[A-Z][a-zA-Z0-9_']*\>"
-syn match VarId "\(\<[A-Z][a-zA-Z0-9_']*\.\)\=\<[a-z][a-zA-Z0-9_']*\>"
+syn match ConId   "\(\<[A-Z][a-zA-Z0-9_']*\.\)*\<[A-Z][a-zA-Z0-9_']*\>"
+syn match hsVarId "\(\<[A-Z][a-zA-Z0-9_']*\.\)*\<[a-z_][a-zA-Z0-9_']*\>"
 
 " Infix operators--most punctuation characters and any (qualified) identifier
 " enclosed in `backquotes`. An operator starting with : is a constructor,
 " others are variables (e.g. functions).
-syn match hsVarSym "\(\<[A-Z][a-zA-Z0-9_']*\.\)\=[-!#$%&\*\+/<=>\?@\\^|~.][-!#$%&\*\+/<=>\?@\\^|~:.]*"
-syn match hsConSym "\(\<[A-Z][a-zA-Z0-9_']*\.\)\=:[-!#$%&\*\+./<=>\?@\\^|~:]*"
-syn match hsVarSym "`\(\<[A-Z][a-zA-Z0-9_']*\.\)\=[a-z][a-zA-Z0-9_']*`"
-syn match hsConSym "`\(\<[A-Z][a-zA-Z0-9_']*\.\)\=[A-Z][a-zA-Z0-9_']*`"
+syn match hsVarSym "\(\<[A-Z][a-zA-Z0-9_']*\.\)*[-!#$%&\*\+/<=>\?@\\^|~.][-!#$%&\*\+/<=>\?@\\^|~.:]*"
+syn match hsConSym "\(\<[A-Z][a-zA-Z0-9_']*\.\)*:[-!#$%&\*\+/<=>\?@\\^|~.:]*"
+syn match hsVarSym "`[\t ]*\([A-Z][a-zA-Z0-9_']*\.\)*[a-z_][a-zA-Z0-9_']*[\t ]*`"
+syn match hsConSym "`[\t ]*\([A-Z][a-zA-Z0-9_']*\.\)*[A-Z][a-zA-Z0-9_']*[\t ]*`"
 
 " Reserved symbols--cannot be overloaded.
-syn match hsDelimiter  "(\|)\|\[\|\]\|,\|;\|_\|{\|}"
+syn match hsDelimiter  "(\|)\|\[|\?\||\?\]\|,\|;\|_\>\|{\|}"
 
 " Strings and constants
-syn match   hsSpecialChar	contained "\\\([0-9]\+\|o[0-7]\+\|x[0-9a-fA-F]\+\|[\"\\'&\\abfnrtv]\|^[A-Z^_\[\\\]]\)"
+syn match   hsSpecialChar	contained "\\\([\t\n ]*\\\|[0-9]\+\|o[0-7]\+\|x[0-9a-fA-F]\+\|[\"\'&abfnrtv]\|\^[A-Z@^_\[\\\]]\)"
 syn match   hsSpecialChar	contained "\\\(NUL\|SOH\|STX\|ETX\|EOT\|ENQ\|ACK\|BEL\|BS\|HT\|LF\|VT\|FF\|CR\|SO\|SI\|DLE\|DC1\|DC2\|DC3\|DC4\|NAK\|SYN\|ETB\|CAN\|EM\|SUB\|ESC\|FS\|GS\|RS\|US\|SP\|DEL\)"
 syn match   hsSpecialCharError	contained "\\&\|'''\+"
 syn region  hsString		start=+"+  skip=+\\\\\|\\"+  end=+"+  contains=hsSpecialChar
@@ -61,16 +61,17 @@ syn match   hsCharacter		"[^a-zA-Z0-9_']'\([^\\]\|\\[^']\+\|\\'\)'"lc=1 contains
 syn match   hsCharacter		"^'\([^\\]\|\\[^']\+\|\\'\)'" contains=hsSpecialChar,hsSpecialCharError
 syn match   hsNumber		"\<[0-9]\+\>\|\<0[xX][0-9a-fA-F]\+\>\|\<0[oO][0-7]\+\>"
 syn match   hsFloat		"\<[0-9]\+\.[0-9]\+\([eE][-+]\=[0-9]\+\)\=\>"
+syn match   hsFloat		"\<[0-9]\+[eE][-+]\=[0-9]\+\>"
 
-" Keyword definitions. These must be patters instead of keywords
+" Keyword definitions. These must be patterns instead of keywords
 " because otherwise they would match as keywords at the start of a
 " "literate" comment (see lhs.vim).
 syn match hsModule		"\<module\>"
 syn match hsImport		"\<import\>.*"he=s+6 contains=hsImportMod,hsLineComment,hsBlockComment
 syn match hsImportMod		contained "\<\(as\|qualified\|hiding\)\>"
 syn match hsInfix		"\<\(infix\|infixl\|infixr\)\>"
-syn match hsStructure		"\<\(class\|data\|deriving\|instance\|default\|where\)\>"
-syn match hsTypedef		"\<\(type\|newtype\)\>"
+syn match hsStructure		"\<\(class\|newtype\|deriving\|instance\|default\|where\)\>"
+syn match hsStructure		"\<\(data\|type\)\>[ \t]*\(\<family\>\)\?"
 syn match hsStatement		"\<\(do\|case\|of\|let\|in\)\>"
 syn match hsConditional		"\<\(if\|then\|else\)\>"
 
@@ -97,8 +98,8 @@ endif
 
 
 " Comments
-syn match   hsLineComment      "---*\([^-!#$%&\*\+./<=>\?@\\^|~].*\)\?$"
-syn region  hsBlockComment     start="{-"  end="-}" contains=hsBlockComment
+syn match   hsLineComment      "---*\([^-:!#$%&\*\+./<=>\?@\\^|~].*\)\?$" contains=@Spell
+syn region  hsBlockComment     start="{-"  end="-}" contains=hsBlockComment,@Spell
 syn region  hsPragma	       start="{-#" end="#-}"
 
 " C Preprocessor directives. Shamelessly ripped from c.vim and trimmed
@@ -143,6 +144,7 @@ if exists("hs_highlight_delimiters")
 " Some people find this highlighting distracting.
 hi def link hsDelimiter			  Delimiter
 endif
+hi def link hsVarId			  Identifier
 hi def link hsSpecialCharError		  Error
 hi def link hsString			  String
 hi def link hsCharacter			  Character
